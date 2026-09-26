@@ -93,6 +93,13 @@ class TokenResponse(SQLModel):
     access_token: str
     token_type: str = "bearer"
 
+class UserRole(str, Enum):
+    SUPER_ADMIN = "super_admin"
+    ADMIN = "admin"
+    MANAGER = "manager"
+    MEMBER = "member"
+    VIEWER = "viewer"
+
 '''
 from sqlmodel import SQLModel, Field, Relationship
 #from datetime import datetime
