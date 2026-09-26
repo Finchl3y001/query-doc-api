@@ -2,12 +2,12 @@ from sqlmodel import SQLModel, Session, create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
- 
-SYNC_URL = "xxy"
-ASYNC_URL = "xxy"
+from .config import Settings, get_settings
 
-sync_engine = create_engine(SYNC_URL, echo = True)
-async_engine = create_async_engine(ASYNC_URL, echo = True)
+settings = get_settings()
+
+sync_engine = create_engine(settings.SYNC_URL, echo = True)
+async_engine = create_async_engine(settings.ASYNC_URL, echo = True)
 
 def sync_session():
     with Session(sync_engine) as session:

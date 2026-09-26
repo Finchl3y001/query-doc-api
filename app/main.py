@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from .database import lifespan
 from .routers import users, organizations,admin, memberships
 
-app = FastAPI(lifespan=lifespan, title="Business Automation API")
+app = FastAPI(lifespan=lifespan, title="QueryDoc API")
 
 app.include_router(users.router)
 app.include_router(organizations.router)
