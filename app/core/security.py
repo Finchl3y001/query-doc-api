@@ -1,19 +1,13 @@
 import jwt
-from jwt.exceptions import InvalidTokenError
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import Depends, HTTPException, status
-from sqlmodel import select, Session
+from fastapi import Depends, HTTPException
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
 
 from ..database import sync_session
 from ..routers import users
 from ..models import User
-from ..config import Settings, get_settings
+from ..core.config import Settings, get_settings
 
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 pass_hash = PasswordHash.recommended()
 

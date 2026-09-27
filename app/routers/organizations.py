@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Depends, status, APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..models import OrganizationCreate, OrganizationResponse, Organization
-from ..database import sync_session, async_session
 from sqlmodel import select, Session
 from fastapi.exceptions import RequestValidationError
 from datetime import datetime, timezone
+
+from ..models import OrganizationCreate, OrganizationResponse, Organization
+from ..database import sync_session, async_session
 
 router =APIRouter(tags=["Organizations"])
 

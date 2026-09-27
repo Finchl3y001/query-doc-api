@@ -2,7 +2,8 @@ from sqlmodel import SQLModel, Session, create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from .config import Settings, get_settings
+
+from .core.config import Settings, get_settings
 
 settings = get_settings()
 
