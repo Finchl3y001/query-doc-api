@@ -3,24 +3,24 @@ import uuid
 import shutil
 from fastapi import APIRouter, Depends, UploadFile, HTTPException, Header, status
 from sqlmodel import select, Session
-from sqlmodel.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import User, Document, UserRole
 from ..dependencies import RoleChecker
 from ..database import sync_session, async_session
 
-router = APIRouter(prefix='/documents')
+router = APIRouter(prefix='/documents', tags=["Documents"])
 
 UPLOAD_DIR = "storage/documents"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.get("")
 async def get_documents(
-    x_organization_id: uuid.UUID = Header(alias='X-Organization-ID'),
+    x_organization_id: int = Header(alias='X-Organization-ID'),
     user: User = Depends(RoleChecker([UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER, UserRole.VIEWER])),
     session: AsyncSession = Depends(async_session)
 ):
-    statement = session.execute(select(Document)).where(Document.organization_id == x_organization_id)
+    statement = select(Document).where(Document.organization_id == x_organization_id)
     results = await session.execute(statement)
     documents = results.scalars().all()
     return documents
@@ -29,7 +29,7 @@ async def get_documents(
 @router.post("/upload")
 def upload_document(
     file: UploadFile,
-    x_organization_id: uuid.UUID = Header(alias='X-Organization-ID'),
+    x_organization_id: int = Header(alias='X-Organization-ID'),
     session: Session = Depends(sync_session),
     user: User = Depends(RoleChecker([UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER])),
     ):
@@ -67,7 +67,7 @@ def upload_document(
 @router.delete("/{doc_id}")
 def delete_document(
     doc_id: uuid.UUID,
-    x_organization_id: uuid.UUID = Header(alias="X-Organization-ID"),
+    x_organization_id: int = Header(alias="X-Organization-ID"),
     user: User = Depends(RoleChecker([UserRole.ADMIN, UserRole.MANAGER])),
     session: Session = Depends(sync_session)
     ):
