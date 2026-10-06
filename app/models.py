@@ -134,6 +134,8 @@ class Document(DocumentBase, table = True):
     organization: "Organization" = Relationship()
     uploader: "User" = Relationship()
 
+    file_hash: str = Field(index = True)
+
 class DocumentResponse(DocumentBase):
     id: uuid.UUID
     organization_id: int

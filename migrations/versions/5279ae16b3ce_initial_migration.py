@@ -24,6 +24,7 @@ def upgrade() -> None:
     op.alter_column('memberships', 'role',
                existing_type=sa.VARCHAR(),
                type_=sa.Enum('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'MEMBER', 'VIEWER', name='userrole'),
+               postgresql_using="role::userrole",
                existing_nullable=False)
     # ### end Alembic commands ###
 

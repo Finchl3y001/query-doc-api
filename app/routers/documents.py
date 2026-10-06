@@ -3,6 +3,7 @@ import uuid
 import shutil
 import numpy as np
 import asyncio
+import hashlib
 from fastapi import APIRouter, Depends, UploadFile, HTTPException, Header, status, BackgroundTasks
 from sqlmodel import select, Session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,7 +42,7 @@ async def get_documents(
     return documents
 
 
-@router.post("/upload")
+@router.post("/upload", status_code = status.HTTP_201_CREATED)
 async def upload_document(
     background_tasks: BackgroundTasks, 
     file: UploadFile = Depends(validated_uploaded_file),
@@ -49,6 +50,34 @@ async def upload_document(
     session: Session = Depends(sync_session),
     user: User = Depends(RoleChecker([UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER])),
 ):
+    sha256_hash = hashlib.sha256()
+
+    #chunked hashing protects your server's internal resource pipeline
+    chunk_size = 64 * 1024
+
+    #walrus operator - Assigns the bytes to 'chunk' AND checks if 'chunk' has data at the same time!
+    while chunk := await file.read(chunk_size):
+        sha256_hash.update(chunk)
+
+    await file.seek(0)
+
+    hex_digest = sha256_hash.hexdigest()
+
+    existing_doc = session.query(Document).filter(
+        Document.file_hash == hex_digest,
+        Document.organization_id == x_organization_id
+        ).first()
+    
+    if existing_doc:
+        raise HTTPException(
+            status_code = status.HTTP_409_C0NFLICT,
+            detail = {
+                "message" : "This exact file has already been uploaded.",
+                "existing_file_id": str(existing_doc),
+                "original_name" : existing_doc.filename
+            }
+        )
+    
     file_id = uuid.uuid4()
 
     filename = file.filename or ""
@@ -71,7 +100,8 @@ async def upload_document(
         filename=file.filename,
         storage_path=storage_path,
         organization_id=x_organization_id,
-        uploaded_by=user.id
+        uploaded_by=user.id,
+        file_hash=hex_digest
     )
 
     session.add(db_document)
@@ -90,7 +120,8 @@ async def upload_document(
         document_id=str(db_document.id),
         storage_path=db_document.storage_path,
         organization_id=x_organization_id
-    )    
+    )  
+    return db_document  
 
     return {
         "Message": "Document uploaded successfully. Processing pipeline started in background.", 
