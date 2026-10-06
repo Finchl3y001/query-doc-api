@@ -3,6 +3,7 @@ from pydantic import EmailStr
 from datetime import datetime, timezone
 from enum import Enum
 import uuid
+from sqlalchemy import Column, JSON
 
 class UserRole(str, Enum):
     SUPER_ADMIN = "super_admin"
@@ -137,6 +138,24 @@ class DocumentResponse(DocumentBase):
     id: uuid.UUID
     organization_id: int
     created_at: datetime
+
+# Add this to your app/models.py file
+
+class DocumentChunk(SQLModel, table=True):
+    __tablename__ = "document_chunks"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    document_id: uuid.UUID = Field(foreign_key="documents.id", ondelete="CASCADE")
+    organization_id: int = Field(foreign_key="organizations.id", index=True)
+    
+    content: str = Field(description="The actual snippet of text from the file")
+    
+    # FIX: Explicitly instruct SQLModel to store the list data inside a JSON column format!
+    embedding: list[float] = Field(
+        sa_column=Column(JSON), 
+        description="1024-dimension float list from Mistral"
+    )
+
 
 '''
 from sqlmodel import SQLModel, Field, Relationship
