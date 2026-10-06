@@ -18,11 +18,13 @@ async def async_session():
     async with AsyncSession(async_engine, expire_on_commit=False) as session:
         yield session
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(sync_engine)
+#commented out since alembic now handles creation of tables, updating columns, tracking version history
+#def create_db_and_tables():
+#    SQLModel.metadata.create_all(sync_engine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables()
+    print("Application is booting up...")
     yield
+    print("Application is shutting down...")
 

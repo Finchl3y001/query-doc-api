@@ -51,6 +51,10 @@ async def upload_document(
 ):
     file_id = uuid.uuid4()
     file_extension = os.path.splitext(file.filename)[1]
+    allowed_file_ext = ['.pdf', '.txt', '.docx']
+
+    if file_extension.lower() not in allowed_file_ext:
+        raise HTTPException(status_code=400, detail="File type not supported. Supported types include TXT, DOCX and PDF")
     unique_filename = f"{file_id}{file_extension}"
     storage_path = os.path.join(UPLOAD_DIR, unique_filename)
 

@@ -19,6 +19,7 @@ dependencies = [
     "pyjwt>=2.15.0",
     "pypdf>=6.19.0",
     "python-dotenv>=1.2.3",
+    "python-magic>=0.4.27",
     "python-multipart>=0.0.32",
     "sqlalchemy>=2.0.52",
     "sqlmodel>=0.0.42",
