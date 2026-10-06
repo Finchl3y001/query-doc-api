@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from app.core.config import get_settings
 from ..models import User, Document, UserRole, DocumentChunk
-from ..dependencies import RoleChecker
+from ..dependencies import RoleChecker, validated_uploaded_file
 from ..database import sync_session, async_session
 from ..services.ai import process_document_pipeline
 
@@ -43,18 +43,17 @@ async def get_documents(
 
 @router.post("/upload")
 async def upload_document(
-    file: UploadFile,
-    background_tasks: BackgroundTasks,  # <-- 4. Inject the background tasks queue handler
+    background_tasks: BackgroundTasks, 
+    file: UploadFile = Depends(validated_uploaded_file),
     x_organization_id: int = Header(alias='X-Organization-ID'),
     session: Session = Depends(sync_session),
     user: User = Depends(RoleChecker([UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER])),
 ):
     file_id = uuid.uuid4()
-    file_extension = os.path.splitext(file.filename)[1]
-    allowed_file_ext = ['.pdf', '.txt', '.docx']
 
-    if file_extension.lower() not in allowed_file_ext:
-        raise HTTPException(status_code=400, detail="File type not supported. Supported types include TXT, DOCX and PDF")
+    filename = file.filename or ""
+    file_extension = os.path.splitext(file.filename)[1].lower()
+
     unique_filename = f"{file_id}{file_extension}"
     storage_path = os.path.join(UPLOAD_DIR, unique_filename)
 
