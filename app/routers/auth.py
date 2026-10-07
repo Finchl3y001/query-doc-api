@@ -8,6 +8,7 @@ from ..models import User, TokenResponse
 from ..database import sync_session
 from ..core.config import Settings, get_settings
 from ..core.security import verify_password, create_access_token, create_refresh_token
+from ..dependencies import get_current_user
 
 
 router = APIRouter(tags=["Authentication"])
@@ -71,3 +72,19 @@ def refresh_access_token(
     new_access_token = create_access_token(data={"sub": payload.get("sub")}, settings=settings)
     
     return {"access_token": new_access_token, "token_type": "bearer"}
+
+
+@router.post("/logout", status_code = status.HTTP_200_OK)
+def logout(
+    response: Response,
+    current_user: User = Depends(get_current_user)):
+
+    response.delete_cookie(
+        key="refresh_token",
+        path='/',
+        httponly=True,
+        secure=True,
+        samesite="lax"
+    )
+    
+    return {"detail": "Succesfully logged out. Session cleared."}
