@@ -1,0 +1,33 @@
+.venv
+__pycache__
+.pytest_cache
+.git
+.env
+
+
+# Local virtual environments and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Version control
+.git/
+.gitignore
+
+# Environment secrets (Crucial! Never bake secrets into the image)
+.env
+.env.*
+
+# Local development files & documentation
+README.md
+docs/
+tests/
+htmlcov/
+
+# Local database files (if using SQLite locally)
+*.db
+*.sqlite3
