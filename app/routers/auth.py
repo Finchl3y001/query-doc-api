@@ -60,7 +60,7 @@ def refresh_access_token(
         )
         
     try:
-        payload = jwt.decode(refresh_token, settings.REFRESH_SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(refresh_token, settings.REFRESH_SECRET_KEY.get_secret_value(), algorithms=[settings.ALGORITHM])
         if payload.get("type") != 'refresh' or payload.get("sub") is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
             

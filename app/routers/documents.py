@@ -25,7 +25,7 @@ class QueryRequest(BaseModel):
 router = APIRouter(prefix='/documents', tags=["Documents"])
 
 settings = get_settings()
-mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY)
+mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY.get_secret_value())
 
 UPLOAD_DIR = "storage/documents"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -166,7 +166,7 @@ async def query_knowledge_base(
     Vector searches your organization's documents, sends snippets to Mistral, and outputs answers.
     """
     settings = get_settings()
-    mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY)
+    mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY.get_secret_value())
 
     # 1. Vectorize the incoming question string using Mistral's cloud embedding model
     try:
