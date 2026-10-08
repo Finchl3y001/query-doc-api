@@ -1,17 +1,46 @@
 from typing import Annotated, Dict
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.exceptions import RequestValidationError
 from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
 
-from ..models import User, TokenResponse
-from ..database import sync_session
+from ..models import User, TokenResponse, UserResponse, UserCreate
+from ..database import sync_session, async_session
 from ..core.config import Settings, get_settings
-from ..core.security import verify_password, create_access_token, create_refresh_token
-from ..dependencies import get_current_user
+from ..core.security import verify_password, create_access_token, create_refresh_token, hash_password
+from ..dependencies import get_current_user, oauth2_scheme
 
 
 router = APIRouter(tags=["Authentication"])
+
+@router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def register_user(user: UserCreate, session: Session = Depends(sync_session)):
+    statement = select(User).where((User.email == user.email) | (User.username == user.username))
+    existing_user = session.exec(statement).first()
+
+    if existing_user:
+        field = "email" if existing_user.email == user.email else "username"
+        value = user.email if field == "email" else user.username
+
+        raise RequestValidationError([
+            {
+                "loc": ("body", field),
+                "msg": f"The {field} '{value}' is already taken",
+                "type": "value_error.already_exists"
+            }
+        ])
+        
+    db_user = User.model_validate(user)
+    db_user.password = hash_password(user.password)
+
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+
+    return db_user
+
 
 @router.post("/login", response_model=TokenResponse)
 def login(
