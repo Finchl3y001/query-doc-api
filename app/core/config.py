@@ -4,6 +4,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr, PostgresDsn
 
 class Settings(BaseSettings):
+    POSTGRES_USER = SecretStr
+    POSTGRES_PASSWORD = SecretStr
+    POSTGRES_DB = SecretStr
     SECRET_KEY: SecretStr
     REFRESH_SECRET_KEY: SecretStr
     MISTRAL_API_KEY: SecretStr
