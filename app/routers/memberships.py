@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlmodel import Session, select
 
 from ..database import sync_session
@@ -8,7 +8,6 @@ from ..models import (
     MembershipCreate,
     MembershipResponse,
     MembershipUpdate,
-    Organization,
     User,
     UserRole,
 )
@@ -157,4 +156,3 @@ def remove_user_from_organization(
 
     session.delete(db_membership)
     session.commit()
-    return None

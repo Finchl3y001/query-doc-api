@@ -1,12 +1,13 @@
 # app/services/ai.py
 import os
 import time
-from pypdf import PdfReader
-from mistralai.client import Mistral  # Updated for Mistral SDK v2+
-from sqlmodel import Session
-from app.models import DocumentChunk
-from app.core.config import get_settings
 from contextlib import contextmanager
+
+from mistralai.client import Mistral  # Updated for Mistral SDK v2+
+from pypdf import PdfReader
+
+from app.core.config import get_settings
+from app.models import DocumentChunk
 
 # Initialize client using your secure, non-hardcoded configuration
 settings = get_settings()
@@ -34,11 +35,11 @@ def process_document_pipeline(document_id: str, storage_path: str, organization_
     """
 
         # 🚨 LOUD LOG 1: Check if the background worker even wakes up
-    print(f"\n=======================================================")
+    print("\n=======================================================")
     print(f"[BACKGROUND WORKER] Waking up for Doc ID: {document_id}")
     print(f"[BACKGROUND WORKER] Checking file path: {storage_path}")
     print(f"[BACKGROUND WORKER] File exists locally? {os.path.exists(storage_path)}")
-    print(f"=======================================================\n")
+    print("=======================================================\n")
 
     extracted_text = ""
 
@@ -51,7 +52,7 @@ def process_document_pipeline(document_id: str, storage_path: str, organization_
                 if text:
                     extracted_text += text + "\n"
         except Exception as e:
-            print(f"[-] [Doc {document_id}] PDF extraction failure: {str(e)}")
+            print(f"[-] [Doc {document_id}] PDF extraction failure: {e!s}")
             return
     else:
         # Plain text fallback handling (.txt, .md, etc.)
@@ -59,7 +60,7 @@ def process_document_pipeline(document_id: str, storage_path: str, organization_
             with open(storage_path, "r", encoding="utf-8") as f:
                 extracted_text = f.read()
         except Exception as e:
-            print(f"[-] [Doc {document_id}] Text file reading failure: {str(e)}")
+            print(f"[-] [Doc {document_id}] Text file reading failure: {e!s}")
             return
 
     # Check for edge case where file contains only empty white spaces or imagery scanned text
@@ -112,6 +113,6 @@ def process_document_pipeline(document_id: str, storage_path: str, organization_
             
         except Exception as e:
             session.rollback()
-            print(f"[-] [Doc {document_id}] Error in batch pipeline execution: {str(e)}")
+            print(f"[-] [Doc {document_id}] Error in batch pipeline execution: {e!s}")
         finally:
             session.close()  # Hand connection pool resources back to the Postgres daemon safely

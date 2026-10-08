@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends, status
-from fastapi.exceptions import RequestValidationError
-from sqlmodel import Session, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
-from ..models import UserCreate, UserResponse, User, UserProfileResponse, Membership, Organization, OrganizationWorkspaceInfo
-from ..database import sync_session, async_session
-from ..core.security import hash_password
-from ..dependencies import get_current_user, oauth2_scheme
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
+from ..database import async_session
+from ..dependencies import get_current_user, oauth2_scheme
+from ..models import (
+    Membership,
+    Organization,
+    OrganizationWorkspaceInfo,
+    User,
+    UserProfileResponse,
+    UserResponse,
+)
 
 router = APIRouter(tags=["Users"])
 

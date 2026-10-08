@@ -1,7 +1,8 @@
 from functools import lru_cache
-from fastapi import FastAPI, Depends
+
+from pydantic import PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import SecretStr, PostgresDsn
+
 
 class Settings(BaseSettings):
     SECRET_KEY: SecretStr

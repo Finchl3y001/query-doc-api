@@ -1,9 +1,11 @@
-from sqlmodel import SQLModel, Field, Relationship
-from pydantic import EmailStr
-from datetime import datetime, timezone
-from enum import Enum
 import uuid
-from sqlalchemy import Column, JSON
+from datetime import UTC, datetime
+from enum import Enum
+
+from pydantic import EmailStr
+from sqlalchemy import JSON, Column
+from sqlmodel import Field, Relationship, SQLModel
+
 
 class UserRole(str, Enum):
     SUPER_ADMIN = "super_admin"
@@ -24,7 +26,7 @@ class Membership(MembershipBase, table=True):
     organization_id: int = Field(default=None, foreign_key="organizations.id")
     
     #created_at: datetime = Field(default_factory=datetime.utcnow) -- deprecated
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class MembershipCreate(SQLModel):
@@ -54,7 +56,7 @@ class User(UserBase, table = True):
     username: str = Field(unique=True, index=True)
     email: EmailStr = Field(unique=True, index=True)
     password: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
    #created_at: datetime = Field(default_factory=datetime.utcnow)
 
     organizations: list["Organization"] = Relationship(back_populates="users", link_model=Membership)
@@ -85,7 +87,7 @@ class Organization(OrganizationBase, table=True):
     name: str = Field(unique=True, index = True)
 
     #created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     users: list["User"] = Relationship(back_populates="organizations", link_model=Membership)
 
@@ -128,7 +130,7 @@ class Document(DocumentBase, table = True):
     organization_id: int = Field(foreign_key="organizations.id")
     uploaded_by: int =Field(foreign_key="users.id")
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     #Optional rships for cleaner querying
     organization: "Organization" = Relationship()

@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Request
 import time
+
+from fastapi import FastAPI, Request
+
 from .database import lifespan
-from .routers import users, organizations,admin, memberships, documents
+from .routers import documents, memberships, organizations, users
 from .routers.auth import router as auth_router
 
 app = FastAPI(lifespan=lifespan, title="QueryDoc API")

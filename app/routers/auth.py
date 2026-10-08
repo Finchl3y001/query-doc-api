@@ -1,17 +1,21 @@
-from typing import Annotated, Dict
-from fastapi import APIRouter, Depends, HTTPException, Response, Cookie, status
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.exceptions import RequestValidationError
-from sqlmodel import Session, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Annotated
+
 import jwt
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import Session, select
 
-from ..models import User, TokenResponse, UserResponse, UserCreate
-from ..database import sync_session, async_session
 from ..core.config import Settings, get_settings
-from ..core.security import verify_password, create_access_token, create_refresh_token, hash_password
-from ..dependencies import get_current_user, oauth2_scheme
-
+from ..core.security import (
+    create_access_token,
+    create_refresh_token,
+    hash_password,
+    verify_password,
+)
+from ..database import sync_session
+from ..dependencies import get_current_user
+from ..models import TokenResponse, User, UserCreate, UserResponse
 
 router = APIRouter(tags=["Authentication"])
 
@@ -81,7 +85,7 @@ def login(
 def refresh_access_token(
     settings: Annotated[Settings, Depends(get_settings)], 
     refresh_token: str = Cookie(None)
-) -> Dict[str, str]:
+) -> dict[str, str]:
     if not refresh_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -1,20 +1,31 @@
-import os
-import uuid
-import shutil
-import numpy as np
 import asyncio
 import hashlib
-from fastapi import APIRouter, Depends, UploadFile, HTTPException, Header, status, BackgroundTasks
-from sqlmodel import select, Session
-from sqlalchemy.ext.asyncio import AsyncSession
+import os
+import shutil
+import uuid
+
+import numpy as np
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    Header,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from mistralai.client import Mistral
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import Session, select
 
 from app.core.config import get_settings
-from ..models import User, Document, UserRole, DocumentChunk
+
+from ..database import async_session, sync_session
 from ..dependencies import RoleChecker, validated_uploaded_file
-from ..database import sync_session, async_session
+from ..models import Document, DocumentChunk, User, UserRole
 from ..services.ai import process_document_pipeline
+
 
 # Simple schema request structure representing incoming user prompts
 class QueryRequest(BaseModel):
@@ -178,7 +189,7 @@ async def query_knowledge_base(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Failed to calculate vector metrics from Mistral: {str(e)}"
+            detail=f"Failed to calculate vector metrics from Mistral: {e!s}"
         )
     await asyncio.sleep(1.5)
 
@@ -232,7 +243,7 @@ async def query_knowledge_base(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Mistral inference text generation engine failed: {str(e)}"
+            detail=f"Mistral inference text generation engine failed: {e!s}"
         )
 
     return {
