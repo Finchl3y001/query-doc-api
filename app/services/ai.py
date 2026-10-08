@@ -2,39 +2,15 @@
 import os
 import time
 from pypdf import PdfReader
-from mistralai.client import Mistral  # <-- Use Mistral instead of OpenAI
+from mistralai.client import Mistral  # Updated for Mistral SDK v2+
 from sqlmodel import Session
 from app.models import DocumentChunk
 from app.core.config import get_settings
 from contextlib import contextmanager
 
-settings = get_settings()
-# 1. Initialize the free Mistral client
-mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY)
-
-
-def chunk_text(text: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> list[str]:
-    chunks = []
-    start = 0
-    while start < len(text):
-        end = start + chunk_size
-        chunks.append(text[start:end])
-        start += chunk_size - chunk_overlap
-    return chunks
-
-
-# app/services/ai.py
-import os
-import time
-from pypdf import PdfReader
-from mistralai.client import Mistral  # Updated for Mistral SDK v2+
-
-from app.models import DocumentChunk
-from app.core.config import get_settings
-
 # Initialize client using your secure, non-hardcoded configuration
 settings = get_settings()
-mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY)
+mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY.get_secret_value())
 
 
 def chunk_text(text: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> list[str]:

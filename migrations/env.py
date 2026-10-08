@@ -22,7 +22,7 @@ load_dotenv()
 db_url = os.getenv("ASYNC_URL")
 
 if db_url:
-    config.set_main_option("sqlalchemy.url", db_url)
+    config.set_main_option("sqlalchemy.url", str(db_url))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

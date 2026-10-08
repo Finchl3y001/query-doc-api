@@ -1,4 +1,4 @@
-from fastapi import Header, Depends, HTTPException, status
+from fastapi import Header, Depends, HTTPException, status, UploadFile
 from sqlmodel import Session, select
 from fastapi.security import OAuth2PasswordBearer
 import jwt
@@ -27,7 +27,7 @@ async def validated_uploaded_file(file: UploadFile) -> UploadFile:
 
     file.file.seek(0, os.SEEK_END)
     file_size = file.file.tell()
-    await file.seek(0)
+    file.file.seek(0)
 
     if file_size > MAX_FILE_SIZE:
         raise HTTPException(
@@ -94,7 +94,7 @@ class RoleChecker:
     async def __call__(self,
         x_organization_id: int = Header(alias="X-Organization-ID"),
         current_user: User = Depends(get_current_user),
-        session: Session = Depends(async_session)) -> User:
+        session: AsyncSession = Depends(async_session)) -> User:
         
         statement = select(Membership).where(
             Membership.organization_id == x_organization_id,

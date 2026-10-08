@@ -7,8 +7,8 @@ from .core.config import Settings, get_settings
 
 settings = get_settings()
 
-sync_engine = create_engine(settings.SYNC_URL, echo = True)
-async_engine = create_async_engine(settings.ASYNC_URL, echo = True)
+sync_engine = create_engine(str(settings.SYNC_URL), echo = True)
+async_engine = create_async_engine(str(settings.ASYNC_URL), echo = True)
 
 def sync_session():
     with Session(sync_engine) as session:
